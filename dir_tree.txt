@@ -1,0 +1,37 @@
+.
+├── build-challenge.sh
+├── dir_tree.txt
+├── k8s
+│	├── db-deployment.yaml
+│	└── web-deployment.yaml
+├── README.md
+├── solution
+│		└── poc.py
+└── src
+    ├── db
+    │	 ├── Dockerfile
+    │  	 ├── flag.txt
+    │ 	 └── init.sh
+    └── web
+        ├── app
+        │    ├── __init__.py
+        │    ├── main.py
+        │    ├── routes
+        │    │      ├── auth.py
+        │    │      ├── infra.py
+        │    │      ├── support.py
+        │    │      └── users.py
+        │    ├── templates
+        │    │      └── profile.html
+        │    └── utils
+        │          ├── bot.py
+        │          ├── cluster_utils.py
+        │          ├── db.py
+        │          ├── __init__.py
+        │          └── security.py
+        ├── default_config.yml
+        ├── Dockerfile
+        ├── entrypoint.sh
+        └── requirements.txt
+
+10 directories, 25 files

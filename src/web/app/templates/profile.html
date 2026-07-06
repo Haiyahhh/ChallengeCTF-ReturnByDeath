@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ username }}'s Profile</title>
+</head>
+<body>
+    <h1>Profile: {{ username }}</h1>
+    
+    <div id="bio"></div>
+
+    <script>
+        // ==========================================
+        // CUSTOM SECURITY SANITIZER (THE RABBIT HOLE)
+        // ==========================================
+        function sanitizeBio(dirtyHtml) {
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(dirtyHtml, 'text/html');
+            
+            // Only allow strictly formatting tags and basic forms
+            let allowedTags = ['B', 'I', 'U', 'P', 'DIV', 'SPAN', 'H1', 'H2', 'FORM'];
+            let allowedAttributes = ['id', 'class', 'action', 'method'];
+
+            let elements = doc.body.getElementsByTagName("*");
+            
+            // Iterate backwards to safely remove elements without breaking the loop
+            for (let i = elements.length - 1; i >= 0; i--) {
+                let el = elements[i];
+                
+                // 1. Remove dangerous tags entirely (scripts, iframes, objects)
+                if (!allowedTags.includes(el.tagName)) {
+                    el.parentNode.removeChild(el);
+                    continue;
+                }
+                
+                // 2. Strip dangerous attributes (onerror, onload, inline styles)
+                for (let j = el.attributes.length - 1; j >= 0; j--) {
+                    let attr = el.attributes[j];
+                    if (!allowedAttributes.includes(attr.name.toLowerCase())) {
+                        el.removeAttribute(attr.name);
+                    }
+                }
+                
+                // 3. Block javascript: URIs in form actions just to be perfectly secure
+                if (el.tagName === 'FORM' && el.getAttribute('action')) {
+                    if (el.getAttribute('action').toLowerCase().includes('javascript:')) {
+                        el.removeAttribute('action');
+                    }
+                }
+            }
+            return doc.body.innerHTML;
+        }
+
+        // Apply the custom sanitizer
+        let rawBio = `{{ bio | safe }}`;
+        document.getElementById('bio').innerHTML = sanitizeBio(rawBio);
+
+        // ==========================================
+        // PAGE ANALYTICS MODULE
+        // ==========================================
+        setTimeout(() => {
+            /* * DEV NOTE (Ticket #402): 
+             * Enterprise users can define their own analytics endpoints by injecting 
+             * a window.ANALYTICS_CONFIG object via the Admin Dashboard.
+             * Standard users will remain undefined and fall back to our internal tracker.
+             */
+             
+            let config = window.ANALYTICS_CONFIG || { action: "/api/v1/telemetry/event", method: "POST" };
+            
+            fetch(config.action, { method: config.method })
+                .catch(err => console.error("Analytics ping failed.", err));
+                
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -27,6 +27,16 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def ui_login_required(f):
+    """Requires a valid session for HTML pages. Redirects to login if invalid."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        decoded, err = get_decoded_token()
+        if err:
+            return redirect('/login')
+        return f(*args, **kwargs)
+    return decorated_function
+
 def admin_required(f):
     """Requires specifically the Admin session."""
     @wraps(f)

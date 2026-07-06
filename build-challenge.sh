@@ -25,6 +25,8 @@ echo "[+] 3/5 Loading updated images into cluster..."
 kind load docker-image $DB_IMAGE --name $CLUSTER_NAME
 kind load docker-image $WEB_IMAGE --name $CLUSTER_NAME
 
+docker image prune -f
+
 # 4. THE RESTART BUTTON: Applies changes and forces K8s to cycle the pods.
 echo "[+] 4/5 Applying K8s manifests..."
 kubectl apply -f ./k8s/

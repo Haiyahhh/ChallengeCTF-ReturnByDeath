@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mt-4">
+            <div class="card-header bg-danger text-white">
+                <h4>Submit Support Ticket</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Report an issue with a specific user profile. An administrator will review the link shortly.</p>
+                <form id="ticketForm">
+                    <div class="mb-3">
+                        <label>Profile URL</label>
+                        <input type="url" id="targetUrl" class="form-control" placeholder="http://localhost:8080/u/username" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">Dispatch Admin Review</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('ticketForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const url = document.getElementById('targetUrl').value;
+
+    const res = await fetch('/api/v1/support/ticket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: url })
+    });
+    
+    const data = await res.json();
+    if (res.ok) {
+        showAlert(data.message, 'success');
+    } else {
+        showAlert(data.error, 'danger');
+    }
+});
+</script>
+{% endblock %}

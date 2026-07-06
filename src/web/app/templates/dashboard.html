@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2 class="mb-4">User Dashboard</h2>
+        
+        <div class="card mb-4 border-warning">
+            <div class="card-header bg-warning text-dark">
+                <strong>Legacy Profile Migration Tool</strong>
+            </div>
+            <div class="card-body">
+                <p>Upload your legacy <code>profile.yml</code> configuration file. Migrations will be processed during the next system restart cycle.</p>
+                <form id="uploadForm">
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="yamlFile" accept=".yml,.yaml" required>
+                        <button class="btn btn-outline-secondary" type="submit">Upload YAML</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fileInput = document.getElementById('yamlFile');
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    const res = await fetch('/api/v1/users/me/import-legacy', {
+        method: 'POST',
+        body: formData
+    });
+    
+    const data = await res.json();
+    if (res.ok) {
+        showAlert(data.message, 'success');
+    } else {
+        showAlert(data.error || 'Upload failed', 'danger');
+    }
+});
+</script>
+{% endblock %}

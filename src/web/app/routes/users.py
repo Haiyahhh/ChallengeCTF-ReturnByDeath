@@ -23,11 +23,11 @@ def view_profile_html(username):
 # ==========================================
 # API ROUTES
 # ==========================================
-@users_bp.route('/api/users/<username>', methods=['GET'])
+@users_bp.route('/api/v1/users/<username>', methods=['GET'])
 def get_user(username):
     return jsonify({"username": username, "status": "active"})
 
-@users_bp.route('/api/users/me/import-legacy', methods=['POST'])
+@users_bp.route('/api/v1/users/me/import-legacy', methods=['POST'])
 @login_required
 def import_legacy_profile():
     if 'file' not in request.files:

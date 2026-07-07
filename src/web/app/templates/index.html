@@ -1,29 +1,46 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="px-4 py-5 my-5 text-center">
-    <h1 class="display-5 fw-bold">Return By Death (RBD) Cloud</h1>
-    <div class="col-lg-6 mx-auto">
-        <p class="lead mb-4">Enterprise-grade Kubernetes infrastructure management and legacy configuration migration. Built for resilience. Designed for scale.</p>
-        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-            <a href="/login" class="btn btn-primary btn-lg px-4 gap-3">Login to Dashboard</a>
-            <a href="/register" class="btn btn-outline-secondary btn-lg px-4">Create Account</a>
+<div class="container px-4 py-5" id="hero">
+    <div class="row align-items-center g-5 py-5">
+        <div class="col-lg-7">
+            <h1 class="display-4 fw-bold lh-1 mb-3 text-pleiades">Pleiades Archival & Migration Network</h1>
+            <p class="lead text-muted mb-4">
+                Enterprise-grade Kubernetes infrastructure management designed for absolute resilience. Pleiades specializes in the seamless intake, translation, and high-availability deployment of legacy PyYAML profile architectures.
+            </p>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="/register" class="btn btn-dark btn-lg px-4 me-md-2">Initialize Account</a>
+                <a href="/login" class="btn btn-outline-secondary btn-lg px-4">Access Console</a>
+            </div>
+        </div>
+        <div class="col-lg-5 text-center d-none d-lg-block">
+            <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=600&q=80" 
+                 class="img-fluid border rounded-3 shadow-lg mb-4" 
+                 alt="Pleiades Constellation Network" 
+                 loading="lazy" 
+                 style="filter: grayscale(60%) sepia(30%); border-radius: 12px;">
         </div>
     </div>
 </div>
 
-<div class="row mt-5 text-center">
-    <div class="col-md-4">
-        <h4>High Availability</h4>
-        <p class="text-muted">Automated container restarting and self-healing infrastructure protocols.</p>
+<div class="row g-4 py-5 row-cols-1 row-cols-lg-3 border-top mt-2">
+    <div class="col d-flex align-items-start">
+        <div>
+            <h3 class="fs-4 text-pleiades">Zero-Downtime Resilience</h3>
+            <p class="text-muted">Our custom orchestration ensures that even in the event of a catastrophic container failure, your configuration data is preserved via persistent volume caches and self-healing deployment lifecycles.</p>
+        </div>
     </div>
-    <div class="col-md-4">
-        <h4>Legacy Support</h4>
-        <p class="text-muted">Seamlessly import your deprecated PyYAML profile configurations.</p>
+    <div class="col d-flex align-items-start">
+        <div>
+            <h3 class="fs-4 text-pleiades">Legacy Profile Intake</h3>
+            <p class="text-muted">Migrating from older systems? Our ingestion engine automatically parses and deserializes your legacy <code>profile.yml</code> configurations during scheduled maintenance and reboot cycles.</p>
+        </div>
     </div>
-    <div class="col-md-4">
-        <h4>24/7 Support</h4>
-        <p class="text-muted">Automated administration bots review your support tickets in seconds.</p>
+    <div class="col d-flex align-items-start">
+        <div>
+            <h3 class="fs-4 text-pleiades">Automated Support</h3>
+            <p class="text-muted">Experience lightning-fast response times. Our headless administration bots securely review submitted profile URLs and telemetry data in seconds, ensuring continuous operational stability.</p>
+        </div>
     </div>
 </div>
 {% endblock %}

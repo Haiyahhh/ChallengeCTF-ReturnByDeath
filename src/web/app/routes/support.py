@@ -16,11 +16,11 @@ def support_page():
 # ==========================================
 # API ROUTES
 # ==========================================
-@support_bp.route('/api/telemetry/event', methods=['POST'])
+@support_bp.route('/api/v1/support/telemetry/event', methods=['POST'])
 def telemetry():
     return jsonify({"status": "recorded", "message": "Telemetry event logged."}), 200
 
-@support_bp.route('/api/support/ticket', methods=['POST'])
+@support_bp.route('/api/v1/support/ticket', methods=['POST'])
 def create_ticket():
     data = request.json or {}
     url = data.get('url')

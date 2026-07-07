@@ -52,7 +52,7 @@ kubectl port-forward svc/rbd-service 8080:8080 > /dev/null 2>&1 &
 PORT_FORWARD_PID=$!
 
 # Trap Ctrl+C (SIGINT) to clean up the port-forwarding gracefully when the user exits the logs
-trap "kill $PORT_FORWARD_PID 2>/dev/null; echo -e '\n[*] Detached from logs. Port-forward stopped.'; exit 0" SIGINT
+# trap "kill $PORT_FORWARD_PID 2>/dev/null; echo -e '\n[*] Detached from logs. Port-forward stopped.'; exit 0" SIGINT
 
 # Follow the logs of the newly spun-up web container
 LATEST_POD=$(kubectl get pods -l app=rbd-web --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1].metadata.name}')

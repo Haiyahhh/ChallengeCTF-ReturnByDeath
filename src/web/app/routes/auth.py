@@ -24,7 +24,7 @@ def register_page():
 # ==========================================
 # API ROUTES
 # ==========================================
-@auth_bp.route('/api/auth/register', methods=['POST'])
+@auth_bp.route('/api/v1/auth/register', methods=['POST'])
 def register():
     data = request.json or {}
     username = data.get('username')
@@ -41,7 +41,7 @@ def register():
     except Exception:
         return jsonify({"error": "Username already exists or database error."}), 400
 
-@auth_bp.route('/api/auth/login', methods=['POST'])
+@auth_bp.route('/api/v1/auth/login', methods=['POST'])
 def login():
     data = request.json or {}
     username = data.get('username')
@@ -72,7 +72,7 @@ def login():
     response.set_cookie('session_token', token, httponly=True, path='/')
     return response
 
-@auth_bp.route('/api/auth/logout', methods=['POST'])
+@auth_bp.route('/api/v1/auth/logout', methods=['POST'])
 def logout():
     response = make_response(jsonify({"message": "Logged out successfully."}))
     response.set_cookie('session_token', '', expires=0, path='/')

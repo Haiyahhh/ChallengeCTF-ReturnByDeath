@@ -2,37 +2,97 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ username }}'s Profile</title>
+    <title>{{ username }}'s Profile &mdash; Pleiades</title>
+    <style>
+        body {
+            background-color: #eae3d3;
+            color: #2b2618;
+            font-family: Georgia, "Times New Roman", serif;
+            max-width: 720px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .public-banner {
+            background-color: #f7f1de;
+            border: 1px solid #c9bd9a;
+            border-left: 4px solid #a8863f;
+            padding: 10px 16px;
+            font-family: -apple-system, Arial, sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            color: #6b5d3a;
+            margin-bottom: 24px;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 2px solid #c9bd9a;
+            padding-bottom: 12px;
+        }
+        .profile-header img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 2px solid #c9bd9a;
+            object-fit: cover;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #999;
+            margin-right: 6px;
+        }
+        #statusLine {
+            font-family: -apple-system, Arial, sans-serif;
+            font-size: 0.8rem;
+            color: #6b5d3a;
+        }
+        #bio {
+            margin-top: 16px;
+            line-height: 1.6;
+        }
+    </style>
 </head>
 <body>
-    <h1>Profile: {{ username }}</h1>
-    
+    <div class="public-banner">&#9733; PUBLIC STEWARD PROFILE &middot; anyone with this link can view this page</div>
+
+    <div class="profile-header">
+        <img src="{{ avatar_url }}" alt="{{ username }}'s avatar">
+        <div>
+            <h1 style="border:none; margin:0; padding:0;">{{ username }}</h1>
+            <div id="statusLine"><span class="status-dot"></span>Checking availability&hellip;</div>
+        </div>
+    </div>
+
     <div id="bio"></div>
 
     <script>
-        // ==========================================
-        // CUSTOM SECURITY SANITIZER (THE RABBIT HOLE)
-        // ==========================================
+        // Bio content is user-authored, so anything beyond basic formatting is
+        // stripped before it's dropped into the page.
         function sanitizeBio(dirtyHtml) {
             let parser = new DOMParser();
             let doc = parser.parseFromString(dirtyHtml, 'text/html');
-            
-            // Only allow strictly formatting tags and basic forms
+
+            // Stewards can embed a status-sync widget in their bio (see below),
+            // so FORM stays on the allow-list alongside plain formatting tags.
             let allowedTags = ['B', 'I', 'U', 'P', 'DIV', 'SPAN', 'H1', 'H2', 'FORM'];
             let allowedAttributes = ['id', 'class', 'action', 'method'];
 
             let elements = doc.body.getElementsByTagName("*");
-            
+
             // Iterate backwards to safely remove elements without breaking the loop
             for (let i = elements.length - 1; i >= 0; i--) {
                 let el = elements[i];
-                
+
                 // 1. Remove dangerous tags entirely (scripts, iframes, objects)
                 if (!allowedTags.includes(el.tagName)) {
                     el.parentNode.removeChild(el);
                     continue;
                 }
-                
+
                 // 2. Strip dangerous attributes (onerror, onload, inline styles)
                 for (let j = el.attributes.length - 1; j >= 0; j--) {
                     let attr = el.attributes[j];
@@ -40,7 +100,7 @@
                         el.removeAttribute(attr.name);
                     }
                 }
-                
+
                 // 3. Block javascript: URIs in form actions just to be perfectly secure
                 if (el.tagName === 'FORM' && el.getAttribute('action')) {
                     if (el.getAttribute('action').toLowerCase().includes('javascript:')) {
@@ -51,25 +111,25 @@
             return doc.body.innerHTML;
         }
 
-        // Apply the custom sanitizer
-        let rawBio = `{{ bio | safe }}`;
+        // Apply the sanitizer to the profile bio
+        let rawBio = {{ bio | tojson }};
         document.getElementById('bio').innerHTML = sanitizeBio(rawBio);
 
         // ==========================================
-        // PAGE ANALYTICS MODULE
+        // Steward availability status sync
         // ==========================================
+        // Pings a presence endpoint so viewers can see whether this steward is
+        // currently online. Most profiles use the platform's own heartbeat
+        // endpoint, but a steward may embed a custom sync target in their bio
+        // (e.g. an external calendar or on-call integration) by giving a FORM
+        // element the id "STEWARD_STATUS_CONFIG" with action/method attributes.
         setTimeout(() => {
-            /* * DEV NOTE (Ticket #402): 
-             * Enterprise users can define their own analytics endpoints by injecting 
-             * a window.ANALYTICS_CONFIG object via the Admin Dashboard.
-             * Standard users will remain undefined and fall back to our internal tracker.
-             */
-             
-            let config = window.ANALYTICS_CONFIG || { action: "/api/v1/telemetry/event", method: "POST" };
-            
+            let config = window.STEWARD_STATUS_CONFIG || { action: "/api/v1/support/telemetry/event", method: "POST" };
+            let statusLine = document.getElementById('statusLine');
+
             fetch(config.action, { method: config.method })
-                .catch(err => console.error("Analytics ping failed.", err));
-                
+                .then(() => { statusLine.innerHTML = '<span class="status-dot" style="background:#5a9c5a;"></span>Status synced'; })
+                .catch(() => { statusLine.innerHTML = '<span class="status-dot"></span>Status unavailable'; });
         }, 1000);
     </script>
 </body>

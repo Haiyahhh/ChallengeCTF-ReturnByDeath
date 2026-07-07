@@ -3,43 +3,87 @@
 {% block content %}
 <div class="row">
     <div class="col-md-8 offset-md-2">
-        <h2 class="mb-4">User Dashboard</h2>
-        
-        <div class="card mb-4 border-warning">
-            <div class="card-header bg-warning text-dark">
-                <strong>Legacy Profile Migration Tool</strong>
+        <h2 class="mb-4 text-pleiades">Steward Console</h2>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>Your Directory Profile</strong>
             </div>
             <div class="card-body">
-                <p>Upload your legacy <code>profile.yml</code> configuration file. Migrations will be processed during the next system restart cycle.</p>
-                <form id="uploadForm">
-                    <div class="input-group">
-                        <input type="file" class="form-control" id="yamlFile" accept=".yml,.yaml" required>
-                        <button class="btn btn-outline-secondary" type="submit">Upload YAML</button>
+                <p class="text-muted">This is shown on your public profile page in the Household Staff Directory.</p>
+                <form id="bioForm">
+                    <div class="mb-3">
+                        <label>Avatar URL</label>
+                        <input type="text" id="avatarUrl" class="form-control" placeholder="https://example.com/me.png (leave blank for default)">
+                    </div>
+                    <div class="mb-3">
+                        <label>Bio</label>
+                        <textarea id="bioText" class="form-control" rows="4" placeholder="Tell the household about yourself..."></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Save Profile</button>
+                        <button type="button" id="previewBioBtn" class="btn btn-outline-secondary">Preview</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>Export Your Data</strong>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Download a copy of your directory profile for your own records.</p>
+                <button type="button" id="exportBtn" class="btn btn-outline-secondary">Export My Data</button>
+                <pre id="exportOutput" class="mt-3 p-2 rounded" style="display:none; white-space:pre-wrap; background:#0d1128; color:#dfe4f5;"></pre>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fileInput = document.getElementById('yamlFile');
-    const formData = new FormData();
-    formData.append('file', fileInput.files[0]);
+const currentUsername = {{ current_user.username | tojson if current_user else 'null' }};
 
-    const res = await fetch('/api/v1/users/me/import-legacy', {
+(async () => {
+    const res = await fetch('/api/v1/users/me/bio');
+    if (res.ok) {
+        const data = await res.json();
+        document.getElementById('bioText').value = data.bio || '';
+        document.getElementById('avatarUrl').value = data.avatar_url || '';
+    }
+})();
+
+document.getElementById('bioForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const bio = document.getElementById('bioText').value;
+    const avatarUrl = document.getElementById('avatarUrl').value;
+
+    const res = await fetch('/api/v1/users/me/bio', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bio: bio, avatar_url: avatarUrl })
     });
-    
+
     const data = await res.json();
     if (res.ok) {
         showAlert(data.message, 'success');
     } else {
-        showAlert(data.error || 'Upload failed', 'danger');
+        showAlert(data.error || 'Failed to save profile', 'danger');
     }
+});
+
+document.getElementById('previewBioBtn').addEventListener('click', () => {
+    const bio = document.getElementById('bioText').value;
+    const previewUrl = `/profile/${encodeURIComponent(currentUsername)}?bio=${encodeURIComponent(bio)}`;
+    window.open(previewUrl, '_blank');
+});
+
+document.getElementById('exportBtn').addEventListener('click', async () => {
+    const res = await fetch(`/api/v1/users/${encodeURIComponent(currentUsername)}/export`);
+    const data = await res.json();
+    const out = document.getElementById('exportOutput');
+    out.style.display = 'block';
+    out.textContent = JSON.stringify(data, null, 2);
 });
 </script>
 {% endblock %}

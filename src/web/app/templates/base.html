@@ -3,56 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pleiades Infrastructure</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>{% block title %}Pleiades Astral Ops{% endblock %}</title>
+    <link href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <style>
-        body { 
-            background-color: #f4f6f9; 
-            padding-top: 76px; 
+        :root {
+            --pleiades-navy: #0b0f2166;
+            --pleiades-bg: #0d1128;
+            --pleiades-bg-alt: #131a3a;
+            --pleiades-gold: #e8c468;
+            --pleiades-gold-soft: #f5d98a;
+            --pleiades-text: #dfe4f5;
+            --pleiades-muted: #97a1c4;
+        }
+        body {
+            background-color: var(--pleiades-bg);
+            background-image:
+                radial-gradient(1px 1px at 20px 30px, #ffffff 100%, transparent),
+                radial-gradient(1px 1px at 130px 80px, #ffffff 100%, transparent),
+                radial-gradient(2px 2px at 220px 40px, var(--pleiades-gold-soft) 100%, transparent),
+                radial-gradient(1px 1px at 300px 120px, #ffffff 100%, transparent),
+                radial-gradient(1px 1px at 60px 160px, #ffffff 100%, transparent),
+                radial-gradient(2px 2px at 400px 200px, var(--pleiades-gold-soft) 100%, transparent),
+                radial-gradient(1px 1px at 500px 60px, #ffffff 100%, transparent);
+            background-repeat: repeat;
+            background-size: 550px 300px;
+            color: var(--pleiades-text);
+            padding-top: 76px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        .navbar-brand { 
-            font-weight: 700; 
-            letter-spacing: 1.5px; 
+        main.container { flex: 1; }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: var(--pleiades-gold-soft) !important;
         }
-        .card { 
-            border-radius: 8px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-            border: none; 
+        .navbar-brand .brand-sub {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--pleiades-muted);
+            display: block;
+            font-weight: 400;
         }
-        .text-pleiades { color: #2c3e50; }
+        .navbar.bg-dark {
+            background-color: #080a1c !important;
+            border-bottom: 1px solid rgba(232, 196, 104, 0.15);
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+            border: 1px solid rgba(232, 196, 104, 0.12);
+            background-color: var(--pleiades-bg-alt);
+            color: var(--pleiades-text);
+        }
+        .card-header {
+            border-bottom: 1px solid rgba(232, 196, 104, 0.15);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .form-control {
+            background-color: #0d1128;
+            border: 1px solid rgba(151, 161, 196, 0.3);
+            color: var(--pleiades-text);
+        }
+        .form-control:focus {
+            background-color: #0d1128;
+            color: var(--pleiades-text);
+            border-color: var(--pleiades-gold);
+            box-shadow: 0 0 0 0.2rem rgba(232, 196, 104, 0.15);
+        }
+        label { color: var(--pleiades-muted); font-size: 0.9rem; }
+        .btn-dark { background-color: #05070f; border-color: rgba(232,196,104,0.3); }
+        .btn-outline-secondary { color: var(--pleiades-muted); border-color: rgba(151,161,196,0.4); }
+        .btn-outline-secondary:hover { background-color: var(--pleiades-gold); border-color: var(--pleiades-gold); color: #05070f; }
+        a { color: var(--pleiades-gold-soft); }
+        .text-pleiades { color: var(--pleiades-gold-soft); }
+        .text-muted { color: var(--pleiades-muted) !important; }
+        code { color: var(--pleiades-gold-soft); }
+        footer.rbd-footer {
+            border-top: 1px solid rgba(232, 196, 104, 0.12);
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--pleiades-muted);
+            font-size: 0.85rem;
+        }
+        footer.rbd-footer .quote {
+            font-style: italic;
+            color: var(--pleiades-gold-soft);
+            margin-bottom: 0.35rem;
+        }
+        footer.rbd-footer .build-badge {
+            display: inline-block;
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: #5c6690;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow-sm">
         <div class="container">
             <a class="navbar-brand" href="/">
-                ✨ PLEIADES
+                ✦ PLEIADES
+                <span class="brand-sub">ASTRAL OPS</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/support">Support</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard">Console</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/directory">Directory</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/support">Report</a></li>
+                    {% if current_user %}
+                    <li class="nav-item ms-lg-3"><span class="nav-link text-muted">{{ current_user.username }}</span></li>
+                    <li class="nav-item ms-lg-2">
+                        <a href="#" id="logoutBtn" class="btn btn-outline-light btn-sm px-3 rounded-pill">Logout</a>
+                    </li>
+                    {% else %}
                     <li class="nav-item ms-lg-3"><a class="nav-link" href="/login">Login</a></li>
                     <li class="nav-item ms-lg-2">
                         <a class="btn btn-outline-light btn-sm px-3 rounded-pill" href="/register">Register</a>
                     </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4 mb-5">
+    <main class="container mt-4 mb-5">
         <div id="alert-box"></div>
-        
-        {% block content %}{% endblock %}
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="rbd-footer">
+        <div class="quote">&ldquo;Even a small light can defy the deepest night.&rdquo;</div>
+        <div>Pleiades Astral Engineering &mdash; Cluster Ops Console</div>
+        <div class="build-badge">cluster: rbd-production-eu-west &middot; build 3.4.1-sanctuary</div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+
     <script>
         // Displays non-blocking alerts that users can dismiss
         function showAlert(message, type='danger') {
@@ -62,7 +158,7 @@
                     ${message}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>`;
-            
+
             // Auto-dismiss success messages after 4 seconds
             if(type === 'success') {
                 setTimeout(() => {
@@ -73,6 +169,15 @@
                     }
                 }, 4000);
             }
+        }
+
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await fetch('/api/v1/auth/logout', { method: 'POST' });
+                window.location.href = '/login';
+            });
         }
     </script>
 </body>

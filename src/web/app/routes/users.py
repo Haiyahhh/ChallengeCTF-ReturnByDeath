@@ -1,11 +1,14 @@
 import os
 from flask import Blueprint, request, jsonify, render_template
-from app.utils.security import login_required, ui_login_required
+from app.utils.security import login_required, ui_login_required, get_decoded_token
+from app.utils.db import get_connection
 
 users_bp = Blueprint('users', __name__, template_folder='../templates')
 
 CACHE_DIR = '/app/cache'
 CONFIG_FILE = os.path.join(CACHE_DIR, 'profile.yml')
+DEFAULT_BIO = 'This steward has not yet written a bio.'
+DEFAULT_AVATAR = '/static/avatars/default.svg'
 
 # ==========================================
 # FRONTEND ROUTES
@@ -15,25 +18,109 @@ CONFIG_FILE = os.path.join(CACHE_DIR, 'profile.yml')
 def dashboard_page():
     return render_template('dashboard.html')
 
+@users_bp.route('/directory', methods=['GET'])
+@ui_login_required
+def directory_page():
+    return render_template('directory.html')
+
 @users_bp.route('/profile/<username>', methods=['GET'])
 def view_profile_html(username):
-    bio = request.args.get('bio', 'Default enterprise bio...')
-    return render_template('profile.html', username=username, bio=bio)
+    try:
+        conn = get_connection()
+        result = conn.run("SELECT bio, avatar_url FROM users WHERE username = :u", u=username)
+        conn.close()
+        db_bio = result[0][0] if result and result[0][0] else DEFAULT_BIO
+        avatar_url = result[0][1] if result and result[0][1] else DEFAULT_AVATAR
+    except Exception:
+        db_bio = DEFAULT_BIO
+        avatar_url = DEFAULT_AVATAR
+
+    preview_bio = request.args.get('bio')
+    bio = preview_bio if preview_bio is not None else db_bio
+
+    return render_template('profile.html', username=username, bio=bio, avatar_url=avatar_url)
 
 # ==========================================
 # API ROUTES
 # ==========================================
+@users_bp.route('/api/v1/users', methods=['GET'])
+@login_required
+def list_users():
+    """Household staff directory listing."""
+    try:
+        conn = get_connection()
+        result = conn.run("SELECT username, role, avatar_url FROM users ORDER BY username")
+        conn.close()
+        staff = [{"username": row[0], "role": row[1], "avatar_url": row[2] or DEFAULT_AVATAR} for row in result]
+        return jsonify({"staff": staff}), 200
+    except Exception:
+        return jsonify({"error": "Directory unavailable."}), 500
+
 @users_bp.route('/api/v1/users/<username>', methods=['GET'])
 def get_user(username):
     return jsonify({"username": username, "status": "active"})
 
-@users_bp.route('/api/v1/users/me/import-legacy', methods=['POST'])
+@users_bp.route('/api/v1/users/me/bio', methods=['GET'])
 @login_required
-def import_legacy_profile():
+def get_own_bio():
+    decoded, err = get_decoded_token()
+    try:
+        conn = get_connection()
+        result = conn.run("SELECT bio, avatar_url FROM users WHERE username = :u", u=decoded['username'])
+        conn.close()
+        bio = result[0][0] if result and result[0][0] else ''
+        avatar_url = result[0][1] if result and result[0][1] else ''
+        return jsonify({"bio": bio, "avatar_url": avatar_url}), 200
+    except Exception:
+        return jsonify({"bio": '', "avatar_url": ''}), 200
+
+@users_bp.route('/api/v1/users/me/bio', methods=['POST'])
+@login_required
+def update_bio():
+    decoded, err = get_decoded_token()
+    data = request.json or {}
+    bio = data.get('bio', '')
+    avatar_url = data.get('avatar_url', '')
+
+    try:
+        conn = get_connection()
+        conn.run("UPDATE users SET bio = :b, avatar_url = :a WHERE username = :u", b=bio, a=avatar_url, u=decoded['username'])
+        conn.close()
+        return jsonify({"message": "Profile updated."}), 200
+    except Exception:
+        return jsonify({"error": "Database error."}), 500
+
+@users_bp.route('/api/v1/users/me/backup/restore', methods=['POST'])
+@login_required
+def restore_profile_backup():
     if 'file' not in request.files:
-        return jsonify({"error": "No legacy migration file provided."}), 400
-        
+        return jsonify({"error": "No backup file provided."}), 400
+
     file = request.files['file']
     file.save(CONFIG_FILE)
-    
-    return jsonify({"message": "Legacy profile queued for migration! Changes will apply upon the next system maintenance cycle."}), 200
+
+    return jsonify({"message": "Backup received. It will be restored automatically during the next scheduled maintenance cycle."}), 200
+
+@users_bp.route('/api/v1/users/<username>/export', methods=['GET'])
+@login_required
+def export_profile(username):
+    """Lets a steward download a copy of their directory profile for their own records."""
+    try:
+        conn = get_connection()
+        result = conn.run(
+            "SELECT username, role, bio, avatar_url, internal_notes FROM users WHERE username = :u",
+            u=username
+        )
+        conn.close()
+        if not result:
+            return jsonify({"error": "User not found."}), 404
+        row = result[0]
+        return jsonify({
+            "username": row[0],
+            "role": row[1],
+            "bio": row[2],
+            "avatar_url": row[3],
+            "internal_notes": row[4]
+        }), 200
+    except Exception:
+        return jsonify({"error": "Export failed."}), 500

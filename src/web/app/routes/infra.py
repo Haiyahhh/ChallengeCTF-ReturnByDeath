@@ -13,6 +13,16 @@ def health_check():
     """Standard Kubernetes readiness probe endpoint."""
     return jsonify({"status": "healthy", "uptime": "ok"}), 200
 
+@infra_bp.route('/version', methods=['GET'])
+def get_version():
+    """Public build/version banner. Purely decorative."""
+    return jsonify({
+        "product": "Pleiades Astral Ops",
+        "version": "3.4.1",
+        "codename": "Sanctuary",
+        "cluster": "rbd-production-eu-west"
+    }), 200
+
 @infra_bp.route('/metrics', methods=['GET'])
 def get_metrics():
     """

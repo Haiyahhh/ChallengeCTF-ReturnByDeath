@@ -4,26 +4,49 @@
 <div class="container px-4 py-5" id="hero">
     <div class="row align-items-center g-5 py-5">
         <div class="col-lg-7">
-            <h1 class="display-4 fw-bold lh-1 mb-3 text-pleiades">Pleiades Archival & Migration Network</h1>
+            <h1 class="display-4 fw-bold lh-1 mb-3 text-pleiades">Autonomous Household Cluster Management for the Modern Noble Estate.</h1>
             <p class="lead text-muted mb-4">
-                Enterprise-grade Kubernetes infrastructure management designed for absolute resilience. Pleiades specializes in the seamless intake, translation, and high-availability deployment of legacy PyYAML profile architectures.
+                Pleiades Astral Engineering delivers resilient, self-healing infrastructure for estate operations &mdash; staff provisioning, steward accounts, and configuration continuity &mdash; all orchestrated across a distributed cluster architecture that never truly sleeps.
             </p>
             <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                <a href="/register" class="btn btn-dark btn-lg px-4 me-md-2">Initialize Account</a>
-                <a href="/login" class="btn btn-outline-secondary btn-lg px-4">Access Console</a>
+                <a href="/register" class="btn btn-dark btn-lg px-4 me-md-2">Register for Service</a>
+                <a href="/login" class="btn btn-outline-secondary btn-lg px-4">Access the Cluster</a>
             </div>
         </div>
         <div class="col-lg-5 text-center d-none d-lg-block">
-            <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=600&q=80" 
-                 class="img-fluid border rounded-3 shadow-lg mb-4" 
-                 alt="Pleiades Constellation Network" 
-                 loading="lazy" 
-                 style="filter: grayscale(60%) sepia(30%); border-radius: 12px;">
+            <svg viewBox="0 0 400 340" class="img-fluid" style="max-height: 320px;">
+                <defs>
+                    <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#f5d98a" stop-opacity="0.9"/>
+                        <stop offset="100%" stop-color="#f5d98a" stop-opacity="0"/>
+                    </radialGradient>
+                </defs>
+                <g stroke="#e8c46855" stroke-width="1.5" fill="none">
+                    <line x1="80" y1="70" x2="170" y2="60"/>
+                    <line x1="170" y1="60" x2="230" y2="120"/>
+                    <line x1="230" y1="120" x2="320" y2="90"/>
+                    <line x1="170" y1="60" x2="150" y2="150"/>
+                    <line x1="150" y1="150" x2="230" y2="120"/>
+                    <line x1="150" y1="150" x2="90" y2="220"/>
+                    <line x1="150" y1="150" x2="240" y2="230"/>
+                </g>
+                <g fill="#f5d98a">
+                    <circle cx="80" cy="70" r="4"/>
+                    <circle cx="170" cy="60" r="6"/>
+                    <circle cx="230" cy="120" r="5"/>
+                    <circle cx="320" cy="90" r="4"/>
+                    <circle cx="150" cy="150" r="7"/>
+                    <circle cx="90" cy="220" r="4"/>
+                    <circle cx="240" cy="230" r="5"/>
+                </g>
+                <circle cx="150" cy="150" r="40" fill="url(#starGlow)"/>
+            </svg>
+            <p class="text-muted small mt-2">Live topology &mdash; cluster rbd-production-eu-west</p>
         </div>
     </div>
 </div>
 
-<div class="row g-4 py-5 row-cols-1 row-cols-lg-3 border-top mt-2">
+<div class="row g-4 py-5 row-cols-1 row-cols-lg-3 border-top mt-2" style="border-color: rgba(232,196,104,0.15) !important;">
     <div class="col d-flex align-items-start">
         <div>
             <h3 class="fs-4 text-pleiades">Zero-Downtime Resilience</h3>
@@ -32,14 +55,14 @@
     </div>
     <div class="col d-flex align-items-start">
         <div>
-            <h3 class="fs-4 text-pleiades">Legacy Profile Intake</h3>
-            <p class="text-muted">Migrating from older systems? Our ingestion engine automatically parses and deserializes your legacy <code>profile.yml</code> configurations during scheduled maintenance and reboot cycles.</p>
+            <h3 class="fs-4 text-pleiades">Configuration Backup &amp; Restore</h3>
+            <p class="text-muted">Export a full snapshot of your steward configuration at any time, and restore it whenever you need &mdash; changes take effect at the next scheduled maintenance cycle.</p>
         </div>
     </div>
     <div class="col d-flex align-items-start">
         <div>
-            <h3 class="fs-4 text-pleiades">Automated Support</h3>
-            <p class="text-muted">Experience lightning-fast response times. Our headless administration bots securely review submitted profile URLs and telemetry data in seconds, ensuring continuous operational stability.</p>
+            <h3 class="fs-4 text-pleiades">Watchdog Support</h3>
+            <p class="text-muted">The Pleiades Watchdog network monitors submitted estate reports around the clock, reviewing and resolving irregularities before they ever reach the Duke.</p>
         </div>
     </div>
 </div>

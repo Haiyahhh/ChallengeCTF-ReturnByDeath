@@ -1,6 +1,6 @@
 import jwt
 from functools import wraps
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, redirect
 
 def get_decoded_token():
     """Helper to decode and validate the JWT from cookies."""

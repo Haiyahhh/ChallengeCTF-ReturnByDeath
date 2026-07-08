@@ -22,7 +22,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
         password VARCHAR(100) NOT NULL,
         role VARCHAR(20) DEFAULT 'user',
         bio TEXT,
-        avatar_url TEXT,
         internal_notes TEXT
     );
 
@@ -32,14 +31,20 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
         secret_value VARCHAR(255)
     );
 
+    CREATE TABLE IF NOT EXISTS config_audit_log (
+        id SERIAL PRIMARY KEY,
+        event VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+    );
+
     INSERT INTO system_secrets (secret_name, secret_value) VALUES ('FLAG', '$FLAG');
 
     -- Seed household staff directory (flavor NPCs with randomly generated,
     -- never-exposed passwords -- these accounts are not meant to be logged into)
-    INSERT INTO users (username, password, role, bio, avatar_url, internal_notes) VALUES
-        ('ram', '$RAM_PW', 'user', 'Head of Household Operations. Keeps the estate cluster running on schedule &mdash; do not ask about her sister''s uptime metrics.', '/static/avatars/ram.svg', 'HR: Exemplary performance. Flagged for Watchdog lead promotion next quarter. No disciplinary history.'),
-        ('rem', '$REM_PW', 'user', 'Junior Systems Steward. Handles kitchen inventory and overnight batch jobs. Still memorizing the incident runbook.', '/static/avatars/rem.svg', 'HR: Still on probationary review period. Manager notes strong potential, recommends pairing with a senior steward.'),
-        ('petra', '$PETRA_PW', 'user', 'Herbal & Resource Logistics. New hire, very earnest, reports every anomaly twice.', '/static/avatars/petra.svg', 'HR: Recently onboarded via the Kalten estate transfer program. Mentor assigned: Frederica.'),
-        ('frederica', '$FREDERICA_PW', 'user', 'Senior Estate Manager. Oversees the Pleiades Watchdog rotation and staff onboarding.', '/static/avatars/frederica.svg', 'HR: Approved for expanded scheduling authority. Handles all new Watchdog onboarding paperwork.')
+    INSERT INTO users (username, password, role, bio, internal_notes) VALUES
+        ('ram', '$RAM_PW', 'user', 'Head of Household Operations. Keeps the estate cluster running on schedule &mdash; do not ask about her sister''s uptime metrics.', 'HR: Exemplary performance. Flagged for Watchdog lead promotion next quarter. No disciplinary history.'),
+        ('rem', '$REM_PW', 'user', 'Junior Systems Steward. Handles kitchen inventory and overnight batch jobs. Still memorizing the incident runbook.', 'HR: Still on probationary review period. Manager notes strong potential, recommends pairing with a senior steward.'),
+        ('petra', '$PETRA_PW', 'user', 'Herbal & Resource Logistics. New hire, very earnest, reports every anomaly twice.', 'HR: Recently onboarded via the Kalten estate transfer program. Mentor assigned: Frederica.'),
+        ('frederica', '$FREDERICA_PW', 'user', 'Senior Estate Manager. Oversees the Pleiades Watchdog rotation and staff onboarding.', 'HR: Approved for expanded scheduling authority. Handles all new Watchdog onboarding paperwork.')
     ON CONFLICT (username) DO NOTHING;
 EOSQL

@@ -1,27 +1,47 @@
 import os
 import platform
+import shutil
+import yaml
 from flask import Blueprint, jsonify
 from app.utils.security import admin_required
+from app.utils.db import get_connection
 
 infra_bp = Blueprint('infra', __name__, url_prefix='/api/v1/infra')
+
+CACHE_DIR = '/app/cache'
+CONFIG_FILE = os.path.join(CACHE_DIR, 'profile.yml')
+STAGING_FILE = os.path.join(CACHE_DIR, 'profile.staging.yml')
 
 # ==========================================
 # PUBLIC INFRASTRUCTURE ENDPOINTS
 # ==========================================
 @infra_bp.route('/health', methods=['GET'])
 def health_check():
-    """Standard Kubernetes readiness probe endpoint."""
-    return jsonify({"status": "healthy", "uptime": "ok"}), 200
+    """Kubernetes readiness probe. Also finalizes any backup staged for
+    restore: a pending backup is only promoted once it's confirmed to be
+    well-formed, and the promotion is recorded for audit purposes."""
+    if os.path.exists(STAGING_FILE):
+        with open(STAGING_FILE, 'r') as f:
+            content = f.read()
 
-@infra_bp.route('/version', methods=['GET'])
-def get_version():
-    """Public build/version banner. Purely decorative."""
-    return jsonify({
-        "product": "Pleiades Astral Ops",
-        "version": "3.4.1",
-        "codename": "Sanctuary",
-        "cluster": "rbd-production-eu-west"
-    }), 200
+        well_formed = True
+        try:
+            yaml.safe_load(content)
+        except yaml.YAMLError:
+            well_formed = False  # malformed backup, discard
+
+        if well_formed:
+            try:
+                conn = get_connection()
+                conn.run("INSERT INTO config_audit_log (event) VALUES ('backup_promoted')")
+                conn.close()
+            except Exception:
+                pass  # audit log unavailable, don't block promotion on it
+            shutil.copyfile(STAGING_FILE, CONFIG_FILE)
+
+        os.remove(STAGING_FILE)
+
+    return jsonify({"status": "healthy", "uptime": "ok"}), 200
 
 @infra_bp.route('/metrics', methods=['GET'])
 def get_metrics():

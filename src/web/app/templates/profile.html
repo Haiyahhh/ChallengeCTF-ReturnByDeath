@@ -24,18 +24,8 @@
             margin-bottom: 24px;
         }
         .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
             border-bottom: 2px solid #c9bd9a;
             padding-bottom: 12px;
-        }
-        .profile-header img {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            border: 2px solid #c9bd9a;
-            object-fit: cover;
         }
         .status-dot {
             display: inline-block;
@@ -60,11 +50,8 @@
     <div class="public-banner">&#9733; PUBLIC STEWARD PROFILE &middot; anyone with this link can view this page</div>
 
     <div class="profile-header">
-        <img src="{{ avatar_url }}" alt="{{ username }}'s avatar">
-        <div>
-            <h1 style="border:none; margin:0; padding:0;">{{ username }}</h1>
-            <div id="statusLine"><span class="status-dot"></span>Checking availability&hellip;</div>
-        </div>
+        <h1 style="border:none; margin:0; padding:0;">{{ username }}</h1>
+        <div id="statusLine"><span class="status-dot"></span>Checking availability&hellip;</div>
     </div>
 
     <div id="bio"></div>

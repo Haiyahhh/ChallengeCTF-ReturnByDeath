@@ -7,8 +7,8 @@ users_bp = Blueprint('users', __name__, template_folder='../templates')
 
 CACHE_DIR = '/app/cache'
 CONFIG_FILE = os.path.join(CACHE_DIR, 'profile.yml')
+STAGING_FILE = os.path.join(CACHE_DIR, 'profile.staging.yml')
 DEFAULT_BIO = 'This steward has not yet written a bio.'
-DEFAULT_AVATAR = '/static/avatars/default.svg'
 
 # ==========================================
 # FRONTEND ROUTES
@@ -27,18 +27,16 @@ def directory_page():
 def view_profile_html(username):
     try:
         conn = get_connection()
-        result = conn.run("SELECT bio, avatar_url FROM users WHERE username = :u", u=username)
+        result = conn.run("SELECT bio FROM users WHERE username = :u", u=username)
         conn.close()
         db_bio = result[0][0] if result and result[0][0] else DEFAULT_BIO
-        avatar_url = result[0][1] if result and result[0][1] else DEFAULT_AVATAR
     except Exception:
         db_bio = DEFAULT_BIO
-        avatar_url = DEFAULT_AVATAR
 
     preview_bio = request.args.get('bio')
     bio = preview_bio if preview_bio is not None else db_bio
 
-    return render_template('profile.html', username=username, bio=bio, avatar_url=avatar_url)
+    return render_template('profile.html', username=username, bio=bio)
 
 # ==========================================
 # API ROUTES
@@ -49,16 +47,12 @@ def list_users():
     """Household staff directory listing."""
     try:
         conn = get_connection()
-        result = conn.run("SELECT username, role, avatar_url FROM users ORDER BY username")
+        result = conn.run("SELECT username, role FROM users ORDER BY username")
         conn.close()
-        staff = [{"username": row[0], "role": row[1], "avatar_url": row[2] or DEFAULT_AVATAR} for row in result]
+        staff = [{"username": row[0], "role": row[1]} for row in result]
         return jsonify({"staff": staff}), 200
     except Exception:
         return jsonify({"error": "Directory unavailable."}), 500
-
-@users_bp.route('/api/v1/users/<username>', methods=['GET'])
-def get_user(username):
-    return jsonify({"username": username, "status": "active"})
 
 @users_bp.route('/api/v1/users/me/bio', methods=['GET'])
 @login_required
@@ -66,13 +60,12 @@ def get_own_bio():
     decoded, err = get_decoded_token()
     try:
         conn = get_connection()
-        result = conn.run("SELECT bio, avatar_url FROM users WHERE username = :u", u=decoded['username'])
+        result = conn.run("SELECT bio FROM users WHERE username = :u", u=decoded['username'])
         conn.close()
         bio = result[0][0] if result and result[0][0] else ''
-        avatar_url = result[0][1] if result and result[0][1] else ''
-        return jsonify({"bio": bio, "avatar_url": avatar_url}), 200
+        return jsonify({"bio": bio}), 200
     except Exception:
-        return jsonify({"bio": '', "avatar_url": ''}), 200
+        return jsonify({"bio": ''}), 200
 
 @users_bp.route('/api/v1/users/me/bio', methods=['POST'])
 @login_required
@@ -80,11 +73,10 @@ def update_bio():
     decoded, err = get_decoded_token()
     data = request.json or {}
     bio = data.get('bio', '')
-    avatar_url = data.get('avatar_url', '')
 
     try:
         conn = get_connection()
-        conn.run("UPDATE users SET bio = :b, avatar_url = :a WHERE username = :u", b=bio, a=avatar_url, u=decoded['username'])
+        conn.run("UPDATE users SET bio = :b WHERE username = :u", b=bio, u=decoded['username'])
         conn.close()
         return jsonify({"message": "Profile updated."}), 200
     except Exception:
@@ -97,9 +89,9 @@ def restore_profile_backup():
         return jsonify({"error": "No backup file provided."}), 400
 
     file = request.files['file']
-    file.save(CONFIG_FILE)
+    file.save(STAGING_FILE)
 
-    return jsonify({"message": "Backup received. It will be restored automatically during the next scheduled maintenance cycle."}), 200
+    return jsonify({"message": "Backup staged. It will be validated and applied automatically at the next health check cycle."}), 200
 
 @users_bp.route('/api/v1/users/<username>/export', methods=['GET'])
 @login_required
@@ -108,7 +100,7 @@ def export_profile(username):
     try:
         conn = get_connection()
         result = conn.run(
-            "SELECT username, role, bio, avatar_url, internal_notes FROM users WHERE username = :u",
+            "SELECT username, role, bio, internal_notes FROM users WHERE username = :u",
             u=username
         )
         conn.close()
@@ -119,8 +111,7 @@ def export_profile(username):
             "username": row[0],
             "role": row[1],
             "bio": row[2],
-            "avatar_url": row[3],
-            "internal_notes": row[4]
+            "internal_notes": row[3]
         }), 200
     except Exception:
         return jsonify({"error": "Export failed."}), 500

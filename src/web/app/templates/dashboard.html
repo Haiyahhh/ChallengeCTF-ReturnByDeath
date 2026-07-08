@@ -13,10 +13,6 @@
                 <p class="text-muted">This is shown on your public profile page in the Household Staff Directory.</p>
                 <form id="bioForm">
                     <div class="mb-3">
-                        <label>Avatar URL</label>
-                        <input type="text" id="avatarUrl" class="form-control" placeholder="https://example.com/me.png (leave blank for default)">
-                    </div>
-                    <div class="mb-3">
                         <label>Bio</label>
                         <textarea id="bioText" class="form-control" rows="4" placeholder="Tell the household about yourself..."></textarea>
                     </div>
@@ -49,19 +45,17 @@ const currentUsername = {{ current_user.username | tojson if current_user else '
     if (res.ok) {
         const data = await res.json();
         document.getElementById('bioText').value = data.bio || '';
-        document.getElementById('avatarUrl').value = data.avatar_url || '';
     }
 })();
 
 document.getElementById('bioForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const bio = document.getElementById('bioText').value;
-    const avatarUrl = document.getElementById('avatarUrl').value;
 
     const res = await fetch('/api/v1/users/me/bio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bio: bio, avatar_url: avatarUrl })
+        body: JSON.stringify({ bio: bio })
     });
 
     const data = await res.json();

@@ -220,3 +220,17 @@ __marimo__/
 # Claude
 CLAUDE.md
 .claude/
+
+# Local dev artifacts
+dir_tree.txt
+
+# LaTeX build artifacts
+*.aux
+*.fdb_latexmk
+*.fls
+*.out
+*.toc
+*.nav
+*.snm
+*.vrb
+*.synctex.gz

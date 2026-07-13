@@ -2,10 +2,6 @@ from app.utils.db import get_connection
 import requests
 
 class DatabaseExporter:
-    """
-    Fake DevSecOps utility for exporting database metrics.
-    Hijacked via PyYAML to execute arbitrary SQL queries.
-    """
     def __init__(self, query=None, export_url=None):
         print("[GADGET] DatabaseExporter instantiated via PyYAML!")
         if query and export_url:

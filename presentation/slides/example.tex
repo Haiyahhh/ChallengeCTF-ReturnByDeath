@@ -1,0 +1,80 @@
+\documentclass{bksec}
+
+
+\usetheme{bksec}
+
+
+\usepackage{wrapfig}
+
+
+\begin{document}
+
+
+\graphicspath{{./assets/presentation/}}
+
+
+\title{Tiêu đề bài thuyết trình}
+\subtitle{Tiêu đề phụ}
+\thumbnail{pepe}
+\author{tdhpwn4l-pfp}{Trần Đức Hiếu}{tdhpwn4l}
+\author{pepe}{Nguyễn Văn A}{alice}
+\author{pepe-smoking}{Phạm Thị B}{bob}
+
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+
+\begin{frame}{Nội dung}
+    \tableofcontents
+\end{frame}
+
+\section{Section thứ nhất}
+    \subsection{Mục con (subsection) 1.1}
+        \begin{frame}{Có thể khai báo tiêu đề của từng slide}{Hoặc không}
+            Một vài công thức toán học tiêu biểu:
+            \begin{itemize}
+                \item Công thức trên cùng dòng (inline mode): $x = \frac{-b \pm
+                \sqrt{b^2 - 4ac}}{2a}$
+            \end{itemize}
+
+            Công thức riêng biệt (display mode):
+            $$\sum_{n = 1}^\infty \frac{1}{n^2} = \frac{\pi^2}{6}$$
+        \end{frame}
+
+\section{Section thứ hai}
+    \begin{frame}
+        \begin{wrapfigure}{R}{.4\paperheight}
+            \includegraphics[height=.4\paperheight]{pepe.jpg}
+        \end{wrapfigure}
+        Có thể thêm hình ảnh vào slide. Lorem ipsum dolor sit amet, consectetur
+        adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+        laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+        in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa
+        qui officia deserunt mollit anim id est laborum.
+    \end{frame}
+
+\section{Section thứ ba}
+    \begin{frame}{Ghi chú về template}
+        \begin{itemize}
+            \item Template được xây dựng trên nền Beamer của \LaTeX. Vì thế, bạn
+            cần biết ứng dụng \LaTeX và Beamer trước khi có thể sử dụng template
+            này
+            \item Template gần như chỉ thêm vào mà không thay đổi các phần của
+            \LaTeX và Beamer có sẵn
+            \item Template vẫn đang trong giai đoạn được phát triển và hoàn
+            thiện. Mình rất cảm kích các đóng góp về lỗi, tính năng, vẻ ngoài,
+            v.v., của template
+        \end{itemize}
+    \end{frame}
+
+\section{Section thứ tư}
+    \begin{frame}
+        \insertthankyou
+    \end{frame}
+
+
+\end{document}

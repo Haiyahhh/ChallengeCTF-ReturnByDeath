@@ -10,9 +10,6 @@ CONFIG_FILE = os.path.join(CACHE_DIR, 'profile.yml')
 STAGING_FILE = os.path.join(CACHE_DIR, 'profile.staging.yml')
 DEFAULT_BIO = 'This steward has not yet written a bio.'
 
-# ==========================================
-# FRONTEND ROUTES
-# ==========================================
 @users_bp.route('/dashboard', methods=['GET'])
 @ui_login_required
 def dashboard_page():
@@ -38,13 +35,9 @@ def view_profile_html(username):
 
     return render_template('profile.html', username=username, bio=bio)
 
-# ==========================================
-# API ROUTES
-# ==========================================
 @users_bp.route('/api/v1/users', methods=['GET'])
 @login_required
 def list_users():
-    """Household staff directory listing."""
     try:
         conn = get_connection()
         result = conn.run("SELECT username, role FROM users ORDER BY username")
@@ -96,7 +89,6 @@ def restore_profile_backup():
 @users_bp.route('/api/v1/users/<username>/export', methods=['GET'])
 @login_required
 def export_profile(username):
-    """Lets a steward download a copy of their directory profile for their own records."""
     try:
         conn = get_connection()
         result = conn.run(

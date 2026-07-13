@@ -5,17 +5,11 @@ from app.utils.security import ui_login_required
 
 support_bp = Blueprint('support', __name__)
 
-# ==========================================
-# FRONTEND ROUTES
-# ==========================================
 @support_bp.route('/support', methods=['GET'])
 @ui_login_required
 def support_page():
     return render_template('support.html')
 
-# ==========================================
-# API ROUTES
-# ==========================================
 @support_bp.route('/api/v1/support/telemetry/event', methods=['POST'])
 def telemetry():
     return jsonify({"status": "recorded", "message": "Telemetry event logged."}), 200

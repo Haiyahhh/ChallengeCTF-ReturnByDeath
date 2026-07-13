@@ -1,0 +1,51 @@
+\mode<presentation>
+
+
+\RequirePackage{graphicx}
+
+
+\setbeamercolor{frametitle}{fg=black}
+\setbeamertemplate{frametitle}{
+    \vspace{.05\textheight}
+    \insertframetitle \\ \small{\normalfont{\insertframesubtitle}}
+}
+
+
+\usebackgroundtemplate{
+    \ifnum\value{framenumber}=1
+    \else
+        \begin{tikzpicture}[remember picture, overlay]
+            \def\backgroundlogooffsetx{-.025\paperwidth}
+            \def\backgroundlogooffsety{-.025\paperwidth}
+
+            \clip
+                ($(current page.north east) +
+                (-\logowidthhalf, -\logowidthhalf) +
+                (\backgroundlogooffsetx, \backgroundlogooffsety)$)
+                circle
+                (\logowidthhalf);
+
+            \node[anchor=north east, inner sep=0, outer sep=0] at
+                ($(current page.north east) +
+                (\backgroundlogooffsetx, \backgroundlogooffsety)$) {
+                    \includegraphics[width=\logowidth]{
+                        ./assets/bksec/bksec-logo.png
+                    }
+                };
+        \end{tikzpicture}
+    \fi
+}
+
+
+\AtBeginSection[]{
+    \begin{frame}
+        \vspace*{\fill}
+        \centering\huge\bfseries{
+            \textcolor{themecolor}{\thesection} \quad \insertsectionhead
+        }
+        \vspace*{\fill}
+    \end{frame}
+}
+
+
+\mode<all>

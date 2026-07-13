@@ -32,7 +32,6 @@ class AdminBot:
     def login_and_visit(self, url):
         print(f"[BOT] Admin process started. Target: {url}")
         
-        # 1. Log in via API to get the dynamically generated JWT
         try:
             session = requests.Session()
             login_resp = session.post(f"{TARGET_HOST}/api/v1/auth/login", json={
@@ -49,7 +48,6 @@ class AdminBot:
             print(f"[BOT] API Login error: {e}")
             return
             
-        # 2. Inject the cookie into the browser and trigger the exploit
         try:
             self.driver.get(TARGET_HOST)
             

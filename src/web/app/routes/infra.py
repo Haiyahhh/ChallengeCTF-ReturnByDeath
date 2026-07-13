@@ -12,14 +12,8 @@ CACHE_DIR = '/app/cache'
 CONFIG_FILE = os.path.join(CACHE_DIR, 'profile.yml')
 STAGING_FILE = os.path.join(CACHE_DIR, 'profile.staging.yml')
 
-# ==========================================
-# PUBLIC INFRASTRUCTURE ENDPOINTS
-# ==========================================
 @infra_bp.route('/health', methods=['GET'])
 def health_check():
-    """Kubernetes readiness probe. Also finalizes any backup staged for
-    restore: a pending backup is only promoted once it's confirmed to be
-    well-formed, and the promotion is recorded for audit purposes."""
     if os.path.exists(STAGING_FILE):
         with open(STAGING_FILE, 'r') as f:
             content = f.read()
@@ -28,7 +22,7 @@ def health_check():
         try:
             yaml.safe_load(content)
         except yaml.YAMLError:
-            well_formed = False  # malformed backup, discard
+            well_formed = False
 
         if well_formed:
             try:
@@ -36,7 +30,7 @@ def health_check():
                 conn.run("INSERT INTO config_audit_log (event) VALUES ('backup_promoted')")
                 conn.close()
             except Exception:
-                pass  # audit log unavailable, don't block promotion on it
+                pass
             shutil.copyfile(STAGING_FILE, CONFIG_FILE)
 
         os.remove(STAGING_FILE)
@@ -45,10 +39,6 @@ def health_check():
 
 @infra_bp.route('/metrics', methods=['GET'])
 def get_metrics():
-    """
-    RABBIT HOLE: Fake Prometheus metrics. 
-    Players might waste time trying to exploit SSRF or command injection here.
-    """
     return """
     # HELP process_virtual_memory_bytes Virtual memory size in bytes.
     # TYPE process_virtual_memory_bytes gauge
@@ -59,13 +49,9 @@ def get_metrics():
     """, 200, {'Content-Type': 'text/plain; version=0.0.4'}
 
 
-# ==========================================
-# RESTRICTED ADMINISTRATIVE ENDPOINTS
-# ==========================================
 @infra_bp.route('/nodes/status', methods=['GET'])
 @admin_required
 def node_status():
-    """RABBIT HOLE: Returns fake Kubernetes cluster status."""
     return jsonify({
         "cluster_name": "rbd-production-eu-west",
         "nodes": [
@@ -79,7 +65,6 @@ def node_status():
 @infra_bp.route('/logs/system', methods=['GET'])
 @admin_required
 def system_logs():
-    """RABBIT HOLE: Returns static mock logs. Players might try Log4j or LFI here."""
     logs = [
         "[INFO] System boot sequence initiated.",
         f"[INFO] Running on architecture: {platform.machine()}",
@@ -92,7 +77,6 @@ def system_logs():
 @infra_bp.route('/maintenance/cache/flush', methods=['POST'])
 @admin_required
 def flush_cache():
-    """RABBIT HOLE: A fake cache flush. Does absolutely nothing."""
     return jsonify({
         "status": "success",
         "message": "Redis and local filesystem caches have been marked for eviction."
@@ -101,9 +85,5 @@ def flush_cache():
 @infra_bp.route('/maintenance/restart', methods=['POST'])
 @admin_required
 def trigger_restart():
-    """
-    THE DEATH TRIGGER: Forces the Pod to commit suicide.
-    Only the Admin Bot (hijacked via DOM Clobbering) can hit this.
-    """
     print("[SYSTEM] CRITICAL: Administrator initiated maintenance cycle. Terminating Pod...")
     os._exit(1)

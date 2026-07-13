@@ -1,11 +1,8 @@
 #!/bin/bash
 set -e
 
-# Read the flag from the physical file
 FLAG=$(cat /flag.txt)
 
-# Generate a random, never-logged password for each seeded staff account so
-# no valid credential for them ever exists in the codebase.
 random_password() {
     head -c 32 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 32
 }
@@ -14,7 +11,6 @@ REM_PW=$(random_password)
 PETRA_PW=$(random_password)
 FREDERICA_PW=$(random_password)
 
-# Initialize the schema and insert the flag
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -39,8 +35,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
     INSERT INTO system_secrets (secret_name, secret_value) VALUES ('FLAG', '$FLAG');
 
-    -- Seed household staff directory (flavor NPCs with randomly generated,
-    -- never-exposed passwords -- these accounts are not meant to be logged into)
     INSERT INTO users (username, password, role, bio, internal_notes) VALUES
         ('ram', '$RAM_PW', 'user', 'Head of Household Operations. Keeps the estate cluster running on schedule &mdash; do not ask about her sister''s uptime metrics.', 'HR: Exemplary performance. Flagged for Watchdog lead promotion next quarter. No disciplinary history.'),
         ('rem', '$REM_PW', 'user', 'Junior Systems Steward. Handles kitchen inventory and overnight batch jobs. Still memorizing the incident runbook.', 'HR: Still on probationary review period. Manager notes strong potential, recommends pairing with a senior steward.'),

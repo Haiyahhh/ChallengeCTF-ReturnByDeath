@@ -6,12 +6,8 @@ from app.utils.security import get_decoded_token
 
 auth_bp = Blueprint('auth', __name__, template_folder='../templates')
 
-# ==========================================
-# FRONTEND ROUTES
-# ==========================================
 @auth_bp.route('/login', methods=['GET'])
 def login_page():
-    """Renders login. Redirects to dashboard if already authenticated."""
     decoded, err = get_decoded_token()
     if not err:
         return redirect('/dashboard')
@@ -21,9 +17,6 @@ def login_page():
 def register_page():
     return render_template('register.html')
 
-# ==========================================
-# API ROUTES
-# ==========================================
 @auth_bp.route('/api/v1/auth/register', methods=['POST'])
 def register():
     data = request.json or {}

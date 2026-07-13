@@ -1,0 +1,195 @@
+\mode<presentation>
+
+
+\RequirePackage{graphicx}
+\RequirePackage{tcolorbox}
+
+
+\usetikzlibrary{calc}
+\usetikzlibrary{fit}
+\usetikzlibrary{positioning}
+
+
+\def\logowidthhalf{.025\paperwidth}
+\def\logowidth{.05\paperwidth}
+\def\logooffsetx{.075\paperwidth}
+\def\logooffsety{-\logooffsetx}
+
+\ExplSyntaxOn
+    \clist_new:N{\authorpfplist}
+    \clist_new:N{\authorrealnamelist}
+    \clist_new:N{\authornicknamelist}
+\ExplSyntaxOff
+
+\newcounter{sectionnum}
+
+
+\newcommand{\displaylogowithtext}[7]{
+    \begin{scope}
+        \clip
+            ($(#1) + (#2, #3)$)
+            circle
+            (\logowidthhalf);
+        \node (#4) at (#1) [xshift=#2, yshift=#3] {
+            \includegraphics[width=\logowidth]{#5}
+        };
+    \end{scope}
+    \node[anchor=west, text width=\textwidth, font={#6}] at (#4.east) {#7};
+}
+
+\newcommand{\thumbnail}[1]{\def\thumbnailfilename{#1}}
+
+\ExplSyntaxOn
+    \renewcommand{\author}[3]{
+        \clist_put_right:Nn{\authorpfplist}{#1}
+        \clist_put_right:Nn{\authorrealnamelist}{#2}
+        \clist_put_right:Nn{\authornicknamelist}{#3}
+    }
+
+    \def\authornum{\clist_count:N{\authorpfplist}}
+
+    \newcommand{\getauthorinfo}[1]{
+        \tl_set:Nx{\authorpfp}{\clist_item:Nn{\authorpfplist}{#1}}
+        \tl_set:Nx{\authorrealname}{\clist_item:Nn{\authorrealnamelist}{#1}}
+        \tl_set:Nx{\authornickname}{\clist_item:Nn{\authornicknamelist}{#1}}
+    }
+\ExplSyntaxOff
+
+\newcommand{\authorinfopaney}[2]{
+    \node (authorinfopaney)
+        at (
+        $(#1.south)!
+        ceil(#2 / 2) / (ceil(\authornum / 2) + 1)!
+        (current page.south)$)
+        {};
+}
+
+\newcommand{\displayauthors}[1]{
+    \def\authorinfopanewidth{.2\textwidth}
+    \pgfmathsetmacro{\authornumeven}{2 * floor(\authornum / 2)}
+    \def\logooffsetx{\logowidthhalf}
+
+    \foreach \i in {1, ..., \authornumeven} {
+        \getauthorinfo{\i}
+
+
+        \authorinfopaney{#1}{\i}
+
+
+        \pgfmathsetmacro{\authorinfopanecolumn}{int(mod(\i, 2))}
+        \ifnum\authorinfopanecolumn=1
+            \node[
+                anchor=west,
+                minimum width=.25\paperwidth, minimum height=\logowidth
+            ] (authorinfopane) at (#1.west |- authorinfopaney) {};
+        \else
+            \node[
+                anchor=east,
+                minimum width=.25\paperwidth, minimum height=\logowidth
+            ] (authorinfopane) at (#1.east |- authorinfopaney) {};
+        \fi
+
+        \displaylogowithtext
+            {authorinfopane.west}
+            {\logooffsetx}{0}
+            {authorpfp}
+            {\authorpfp}
+            {\tiny\bfseries}
+            {Presenter \i: \authorrealname \\
+            \textcolor{themecolor}{@\authornickname}}
+    }
+
+    \pgfmathsetmacro\authornumisodd{int(mod(\authornum, 2))}
+    \ifnum\authornumisodd=1
+        \getauthorinfo{\authornum}
+
+        \authorinfopaney{#1}{\authornum}
+        \node[minimum width=.25\paperwidth, minimum height=\logowidth]
+            (authorinfopane) at (#1.center |- authorinfopaney) {};
+
+        \displaylogowithtext
+            {authorinfopane.west}
+            {\logooffsetx}{0}
+            {authorpfp}
+            {\authorpfp}
+            {\tiny\bfseries}
+            {Presenter \authornum: \authorrealname \\
+            \textcolor{themecolor}{@\authornickname}}
+    \fi
+}
+
+
+\defbeamertemplate*{title page}{bksec}[1][] {
+    \usebackgroundtemplate{}
+    \begin{tikzpicture}[remember picture, overlay]
+        \displaylogowithtext
+            {current page.north west}
+            {\logooffsetx}{\logooffsety}
+            {bksec-logo}
+            {./assets/bksec/bksec-logo.png}
+            {\small}
+            {Câu lạc bộ An toàn thông tin \\ ĐHBKHN}
+
+
+        \def\titlesubtitleauthorlistwidth{.475\paperwidth}
+
+        \node[
+            anchor=north west,
+            text width=\titlesubtitleauthorlistwidth,
+            minimum height=.25\paperheight,
+            align=center,
+            font=\Huge\bfseries
+        ] (title)
+            at (bksec-logo.south east)
+            [xshift=-.025\paperwidth]
+            {\inserttitle};
+
+        \node[anchor=north] (subtitle)
+            at (title.south)
+            [yshift=-.025\paperheight] {
+
+            \centering\begin{tcolorbox} [
+                width=\titlesubtitleauthorlistwidth,
+                colback=themecolor,
+                colframe=themecolor
+            ]
+                \centering{\bfseries{\textcolor{white}{\insertsubtitle}}}
+            \end{tcolorbox}
+        };
+
+        \node[fit=(title)(subtitle)] (title-subtitle) {};
+
+
+        \node at ($(title-subtitle.east)!.5!(current page.east)$) {
+            \includegraphics[width=.25\paperwidth]{\thumbnailfilename}
+        };
+
+        \displayauthors{title-subtitle}
+    \end{tikzpicture}
+}
+
+
+\setbeamertemplate{section in toc}{
+    \stepcounter{sectionnum}
+    \textcolor{themecolor}{\thesectionnum} \quad
+    \textcolor{black}{\inserttocsection}
+}
+
+\setbeamertemplate{subsection in toc}{}
+\setbeamertemplate{subsubsection in toc}{}
+
+
+\newcommand{\insertthankyou}{
+    \centering
+    \begin{tikzpicture}[remember picture, overlay]
+        \node[font=\Huge\bfseries, minimum width=.75\paperwidth]
+            (thank-you-text) {Thank you!};
+        \displayauthors{thank-you-text}
+    \end{tikzpicture}
+}
+
+
+\setbeamertemplate{itemize item}[circle]
+
+
+\mode<all>

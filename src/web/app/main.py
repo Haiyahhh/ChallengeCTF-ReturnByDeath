@@ -3,7 +3,6 @@ import yaml
 import secrets
 from flask import Flask, render_template
 
-# Import the blueprint
 from app.routes.auth import auth_bp
 from app.routes.users import users_bp
 from app.routes.infra import infra_bp
@@ -12,18 +11,12 @@ from app.utils.security import get_decoded_token
 
 app = Flask(__name__, template_folder='../templates')
 
-# ==========================================
-# SYSTEM CONFIGURATION & SECRETS
-# ==========================================
 app.config['ADMIN_PASSWORD'] = os.environ.get('ADMIN_PASSWORD') or secrets.token_hex(16)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
 
 CACHE_DIR = '/app/cache'
 CONFIG_FILE = os.path.join(CACHE_DIR, 'profile.yml')
 
-# ==========================================
-# INITIALIZATION SEQUENCE
-# ==========================================
 print("[SYSTEM] Commencing startup initialization...")
 print("[SYSTEM] Secrets initialized.")
 
@@ -35,9 +28,6 @@ if os.path.exists(CONFIG_FILE):
     except Exception as e:
         print(f"[SYSTEM] Profile load warning: {e}")
 
-# ==========================================
-# BLUEPRINT REGISTRATION
-# ==========================================
 app.register_blueprint(auth_bp)
 app.register_blueprint(users_bp)
 app.register_blueprint(infra_bp)

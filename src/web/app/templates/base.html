@@ -154,7 +154,6 @@
     <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
 
     <script>
-        // Displays non-blocking alerts that users can dismiss
         function showAlert(message, type='danger') {
             const alertBox = document.getElementById('alert-box');
             alertBox.innerHTML = `
@@ -163,7 +162,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>`;
 
-            // Auto-dismiss success messages after 4 seconds
             if(type === 'success') {
                 setTimeout(() => {
                     const alertNode = document.querySelector('.alert');
